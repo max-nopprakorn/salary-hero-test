@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/usr/src/app/
+      - /usr/src/app/node_modules
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USERNAME=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DATABASE=salary
+      - POSTGRES_PORT=5432
+  postgres:
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=salary
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
