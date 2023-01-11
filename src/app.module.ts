@@ -18,6 +18,7 @@ import { User } from './user/user.entity';
 import { Role } from './role/role.entity';
 import { UserRole } from './user-role/user-role.entity';
 import { Company } from './company/company.entity';
+import { databaseProviders } from './database.providers';
 
 @Module({
   imports: [
@@ -27,7 +28,10 @@ import { Company } from './company/company.entity';
     UserRoleModule,
     AuthModule,
     PassportModule,
-    JwtModule.register({secret:'salary-hero',signOptions:{expiresIn:'1h'}}),
+    JwtModule.register({
+      secret: 'salary-hero',
+      signOptions: { expiresIn: '1h' },
+    }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: config.postgres.host,
@@ -35,10 +39,10 @@ import { Company } from './company/company.entity';
       username: config.postgres.username,
       password: config.postgres.password,
       database: config.postgres.database,
-      models: [User,Role,UserRole,Company],
+      models: [User, Role, UserRole, Company],
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [...databaseProviders, AppService],
 })
 export class AppModule {}
