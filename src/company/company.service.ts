@@ -1,24 +1,59 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
+import { Company } from './company.entity';
+import { CompanyDto } from './dto/company.dto';
 
 @Injectable()
 export class CompanyService {
-  create(createCompanyDto) {
-    return 'This action adds a new company';
+  constructor(
+    @InjectModel(Company)
+    private companyModel: typeof Company,
+  ) {}
+  async create(companyDto: CompanyDto): Promise<Company> {
+    return this.companyModel.create({ ...companyDto });
   }
 
-  findAll() {
-    return `This action returns all company`;
+  async findAll(): Promise<Company[]> {
+    return this.companyModel.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} company`;
+  async findOne(id: number): Promise<Company> {
+    return this.companyModel.findByPk(id);
   }
 
-  update(id: number, updateCompanyDto) {
-    return `This action updates a #${id} company`;
+  async update(id: number, companyDto: CompanyDto): Promise<Company> {
+    this.companyModel.update(companyDto, {
+      where: {
+        id: id,
+      },
+    });
+
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} company`;
+  async searchByName(name: string): Promise<Company[]> {
+    return this.companyModel.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${name}%`
+        }
+      }
+    })
+  }
+
+  async remove(id: number): Promise<boolean> {
+    const countDelete = await this.companyModel.destroy({
+      where: {
+        id: id,
+      },
+    });
+
+    if(countDelete === 1) {
+      return true
+    } else {
+      return false
+    }
+     
   }
 }

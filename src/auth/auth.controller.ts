@@ -25,7 +25,7 @@ export class AuthController {
   async signUp(@Response() res, @Body() signUpDto: SignUpDto) {
     try {
       const response = await this.authService.signUp(signUpDto);
-      return res.status(HttpStatus.OK).json({ response });
+      return res.status(HttpStatus.CREATED).json({ response });
     } catch (e) {
       return res.status(e.status).json(e.response);
     }
