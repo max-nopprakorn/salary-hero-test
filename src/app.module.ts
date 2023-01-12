@@ -36,10 +36,13 @@ import { SeederModule } from 'nestjs-sequelize-seeder';
       password: config.postgres.password,
       database: config.postgres.database,
       models: [User, Role, UserRole, Company],
+      synchronize:true,
+      autoLoadModels:true
     }),
     SeederModule.forRoot({
-      runOnlyIfTableIsEmpty:false
-    })
+      runOnlyIfTableIsEmpty: false,
+      foreignDelay: 2000,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
