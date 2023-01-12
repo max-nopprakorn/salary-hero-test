@@ -7,18 +7,14 @@ import { config } from 'config/config';
 import { RoleModule } from './role/role.module';
 import { CompanyModule } from './company/company.module';
 import { UserRoleModule } from './user-role/user-role.module';
-import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JWTStrategy } from './auth/jwt.strategy';
-import { AuthService } from './auth/auth.service';
-import { AuthController } from './auth/auth.controller';
 import { User } from './user/user.entity';
 import { Role } from './role/role.entity';
 import { UserRole } from './user-role/user-role.entity';
 import { Company } from './company/company.entity';
-import { databaseProviders } from './database.providers';
+import { SeederModule } from 'nestjs-sequelize-seeder';
 
 @Module({
   imports: [
@@ -41,8 +37,11 @@ import { databaseProviders } from './database.providers';
       database: config.postgres.database,
       models: [User, Role, UserRole, Company],
     }),
+    SeederModule.forRoot({
+      runOnlyIfTableIsEmpty:false
+    })
   ],
   controllers: [AppController],
-  providers: [...databaseProviders, AppService],
+  providers: [AppService],
 })
 export class AppModule {}

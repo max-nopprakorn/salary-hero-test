@@ -5,6 +5,7 @@ import { AuthenticateDto } from './dto/auth.dto';
 import { JWTAuthGuard } from './jwt.guard';
 import { RoleGuard } from './role.guard';
 import { Roles } from './roles.decorator';
+import { AuthUser } from './user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -24,7 +25,7 @@ export class AuthController {
   @Roles('SALARY_HERO')
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Get()
-  get() {
+  get(@AuthUser() user: any) {
     return {hello:"WORLD!"}
   }
 }
