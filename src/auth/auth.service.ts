@@ -1,41 +1,43 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
 import { sign } from 'jsonwebtoken';
-import { AuthenticateDto } from './dto/auth.dto';
+import { User } from 'src/user/user.entity';
+import { SignInDto, SignUpDto, TokenResponse } from './dto/auth.dto';
+import * as bcrypt from 'bcrypt';
+
+const salt = 2;
+const jwtSecret = 'salary-hero';
 
 @Injectable()
 export class AuthService {
-  users = [
-    {
-      id: 1,
-      userName: 'hero',
-      password: '1234',
-      role: 'SALARY_HERO',
-    },
-    {
-      id: 2,
-      userName: 'admin',
-      password: '1234',
-      role: 'CLIENT_ADMIN',
-    },
-    {
-      id: 3,
-      userName: 'employee',
-      password: '1234',
-      role: 'EMPLOYEE',
-    },
-  ];
+  constructor(
+    @InjectModel(User)
+    private userModel: typeof User,
+  ) {}
 
-  authenticate(authenticateDto: AuthenticateDto) {
-    const user = this.users.find(
-      (u) =>
-        u.userName === authenticateDto.userName &&
-        u.password === authenticateDto.password,
-    );
+  async signIn(signInDto: SignInDto): Promise<TokenResponse> {
+    const hashedPassword = bcrypt.hashSync(signInDto.password, salt);
+    const user = await this.userModel.findOne({
+      where: {
+        username: signInDto.username,
+        password: hashedPassword,
+      },
+    });
 
-    if (!user) throw new NotFoundException('incorrect username/password')
+    if (!user) throw new NotFoundException('incorrect username/password');
 
-    const token = sign({...user},'salary-hero')
+    const token = sign({ ...user }, jwtSecret);
 
-    return {token, user }
+    return { token, user };
+  }
+
+  async signUp(signUpDto: SignUpDto): Promise<User> {
+    const hashedPassword = bcrypt.hashSync(signUpDto.password, salt);
+    const param = {
+      username: signUpDto.username,
+      password: hashedPassword
+    }
+    const user = await this.userModel.create(param)
+    return user
   }
 }
