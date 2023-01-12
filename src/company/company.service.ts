@@ -49,7 +49,7 @@ export class CompanyService {
       },
     });
 
-    if(countDelete === 1) {
+    if(countDelete > 0) {
       return true
     } else {
       return false

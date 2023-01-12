@@ -16,6 +16,7 @@ export class SeedUser implements OnSeederInit<User> {
         password: password,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        isAdded: true
       },
     ];
 

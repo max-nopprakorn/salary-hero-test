@@ -41,45 +41,50 @@ export class AuthService {
 
     const roleIds = userRoles.map((userRole) => userRole.roleId);
 
-    const roles = []
+    const roles = [];
 
     for (const roleId of roleIds) {
       const role = await this.roleModel.findOne({
         where: {
-          id: roleId
-        }
-      })
+          id: roleId,
+        },
+      });
 
-      roles.push(role.name)
+      roles.push(role.name);
     }
-    
+
     const token = sign({ ...user, roles: roles }, jwtSecret);
 
     return { token, user };
   }
 
   async signUp(signUpDto: SignUpDto): Promise<User> {
-    const salt = await bcrypt.genSalt(saltRound);
-    const hashedPassword = bcrypt.hashSync(signUpDto.password, salt);
-    const role = await this.roleModel.findOne({
-      where: {
-        name: 'EMPLOYEE'
-      }
-    })
-    const userParam = {
-      username: signUpDto.username,
-      password: hashedPassword,
-      companyId: signUpDto.companyId
-    };
-    
-    const user = await this.userModel.create(userParam);
+    try {
+      const salt = await bcrypt.genSalt(saltRound);
+      const hashedPassword = bcrypt.hashSync(signUpDto.password, salt);
+      const role = await this.roleModel.findOne({
+        where: {
+          name: 'EMPLOYEE',
+        },
+      });
+      const userParam = {
+        username: signUpDto.username,
+        password: hashedPassword, 
+        companyId: signUpDto.companyId,
+        isAdded: false,
+      };
 
-    const userRoleParam = {
-      userId: user.id,
-      roleId: role.id
+      const user = await this.userModel.create(userParam);
+
+      const userRoleParam = {
+        userId: user.id,
+        roleId: role.id,
+      };
+
+      await this.userRoleModel.create(userRoleParam);
+      return user;
+    } catch (e) {
+      console.log('e :>> ', e);
     }
-
-    await this.userRoleModel.create(userRoleParam)
-    return user;
   }
 }

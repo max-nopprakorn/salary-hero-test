@@ -15,15 +15,12 @@ import { Role } from './role/role.entity';
 import { UserRole } from './user-role/user-role.entity';
 import { Company } from './company/company.entity';
 import { SeederModule } from 'nestjs-sequelize-seeder';
+import { EmployeeModule } from './employee/employee.module';
+import { EmployeeRequestTransactionModule } from './employee-request-transaction/employee-request-transaction.module';
+import { EmployeeRequestTransaction } from './employee-request-transaction/employee-request-transaction.entity';
 
 @Module({
   imports: [
-    UserModule,
-    RoleModule,
-    CompanyModule,
-    UserRoleModule,
-    AuthModule,
-    PassportModule,
     JwtModule.register({
       secret: 'salary-hero',
       signOptions: { expiresIn: '1h' },
@@ -35,14 +32,22 @@ import { SeederModule } from 'nestjs-sequelize-seeder';
       username: config.postgres.username,
       password: config.postgres.password,
       database: config.postgres.database,
-      models: [User, Role, UserRole, Company],
-      synchronize:true,
-      autoLoadModels:true
+      models: [User, Role, UserRole, Company, EmployeeRequestTransaction],
+      synchronize: true,
+      autoLoadModels: true,
     }),
     SeederModule.forRoot({
       runOnlyIfTableIsEmpty: false,
       foreignDelay: 2000,
     }),
+    UserModule,
+    RoleModule,
+    CompanyModule,
+    UserRoleModule,
+    AuthModule,
+    PassportModule,
+    EmployeeModule,
+    EmployeeRequestTransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,7 +9,7 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JWTAuthGuard } from 'src/auth/jwt.guard';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/roles.decorator';
@@ -18,6 +18,7 @@ import { CompanyService } from './company.service';
 import { CompanyDto } from './dto/company.dto';
 
 @Controller('companies')
+@ApiTags('companies')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 

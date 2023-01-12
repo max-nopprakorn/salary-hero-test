@@ -1,4 +1,5 @@
 import {
+  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
@@ -18,6 +19,12 @@ export class User extends Model {
   @Column
   password: string;
 
+  @Column
+  firstName: string
+
+  @Column
+  givenName: string
+
   @Column(DataType.FLOAT)
   salary: number;
 
@@ -26,4 +33,8 @@ export class User extends Model {
 
   @ForeignKey(() => Company)
   companyId: number;
+
+  @BelongsTo(() => Company) 
+  company: Company
+
 }
