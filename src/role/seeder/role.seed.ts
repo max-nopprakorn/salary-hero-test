@@ -3,7 +3,7 @@ import { Role } from '../role.entity';
 
 @Seeder({
   model: Role,
-  
+  containsForeignKeys: true,
 })
 export class SeedRole implements OnSeederInit<Role> {
   run() {
@@ -23,9 +23,7 @@ export class SeedRole implements OnSeederInit<Role> {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
-
     ];
     return data;
   }
-
 }

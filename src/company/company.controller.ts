@@ -15,48 +15,59 @@ import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { Company } from './company.entity';
 import { CompanyService } from './company.service';
+import { CompanyDto } from './dto/company.dto';
 
 @Controller('companies')
-@ApiBearerAuth()
-@UseGuards(JWTAuthGuard, RoleGuard)
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   @Post()
-  @Roles('SALARY_HERO')
-  async create(@Body() createCompanyDto): Promise<Company> {
-    return await this.companyService.create(createCompanyDto);
+  @ApiBearerAuth()
+  @UseGuards(JWTAuthGuard, RoleGuard)
+  @Roles('HERO')
+  async create(@Body() companyDto:CompanyDto): Promise<Company> {
+    return await this.companyService.create(companyDto);
   }
 
   @Get()
-  @Roles('SALARY_HERO')
+  @ApiBearerAuth()
+  @UseGuards(JWTAuthGuard, RoleGuard)
+  @Roles('HERO')
   async findAll() {
     return await this.companyService.findAll();
   }
 
   @Get('search')
-  @Roles('SALARY_HERO')
+  @ApiBearerAuth()
+  @UseGuards(JWTAuthGuard, RoleGuard)
+  @Roles('HERO')
   async searchByName(@Query('name') name: string) {
     return await this.companyService.searchByName(name);
   }
 
   @Get(':id')
-  @Roles('SALARY_HERO')
+  @ApiBearerAuth()
+  @UseGuards(JWTAuthGuard, RoleGuard)
+  @Roles('HERO')
   async findOne(@Param('id') id: string): Promise<Company> {
     return await this.companyService.findOne(+id);
   }
 
   @Patch(':id')
-  @Roles('SALARY_HERO')
+  @ApiBearerAuth()
+  @UseGuards(JWTAuthGuard, RoleGuard)
+  @Roles('HERO')
   async update(
     @Param('id') id: string,
-    @Body() updateCompanyDto,
+    @Body() companyDto:CompanyDto,
   ): Promise<Company> {
-    return await this.companyService.update(+id, updateCompanyDto);
+    return await this.companyService.update(+id, companyDto);
   }
 
   @Delete(':id')
-  @Roles('SALARY_HERO')
+  @ApiBearerAuth()
+  @UseGuards(JWTAuthGuard, RoleGuard)
+  @Roles('HERO')
   async remove(@Param('id') id: string) {
     const result = await this.companyService.remove(+id);
     if (result) {

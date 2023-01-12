@@ -1,29 +1,23 @@
 import { OnSeederInit, Seeder } from 'nestjs-sequelize-seeder';
 import { User } from '../user.entity';
-import { hashSync } from 'bcrypt';
+import { genSaltSync, hash, hashSync, genSalt } from 'bcrypt';
 
 @Seeder({
   model: User,
+  containsForeignKeys: true,
 })
 export class SeedUser implements OnSeederInit<User> {
   run() {
+    const salt = 10
+    const password = hashSync('P@ssw0rd', salt)
     const data = [
       {
         username: 'salary-hero',
-        password: 'P@ssw0rd',
+        password: password,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
     ];
-
-    return data;
-  }
-
-  everyone(data) {
-    if (data.password) {
-      const salt = 2;
-      data.password = hashSync(data.password, salt);
-    }
 
     return data;
   }

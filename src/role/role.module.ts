@@ -12,6 +12,7 @@ import { SeedRole } from './seeder/role.seed';
     SeederModule.forFeature([SeedRole])
   ],
   controllers: [RoleController],
-  providers: [RoleService]
+  providers: [RoleService],
+  exports: [SequelizeModule]
 })
 export class RoleModule {}

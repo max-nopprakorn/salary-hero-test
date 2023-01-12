@@ -13,5 +13,6 @@ import { SeedUserRole } from './seeder/user-role.seeder';
   ],
   controllers: [UserRoleController],
   providers: [UserRoleService],
+  exports:[SequelizeModule]
 })
 export class UserRoleModule {}

@@ -13,5 +13,6 @@ import { SeedUser } from './seed/user.seed';
   ],
   controllers: [UserController],
   providers: [UserService],
+  exports: [SequelizeModule]
 })
 export class UserModule {}

@@ -8,8 +8,13 @@ export class RoleGuard implements CanActivate {
     
   }
 
-  matchRoles(roles: string[], userRole: string) {
-    return roles.some(role => role === userRole)
+  matchRoles(roles: string[], userRoles: string[]) {
+    const intersection = roles.filter(element => userRoles.includes(element));
+    if(intersection.length > 0) {
+      return true
+    } else {
+      return false
+    }
   }
 
   canActivate(
@@ -21,6 +26,6 @@ export class RoleGuard implements CanActivate {
     }
     const req = context.switchToHttp().getRequest()
     const user = req.user
-    return this.matchRoles(roles,user.role);
+    return this.matchRoles(roles,user.roles);
   }
 }
