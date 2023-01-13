@@ -162,10 +162,11 @@ export class EmployeeService {
     const user = await this.userModel.findByPk(employeeId);
     const salt = await bcrypt.genSalt(saltRound);
     const hashedPassword = bcrypt.hashSync(editEmployeeDto.password, salt);
-    user.password = hashedPassword
-    user.salary = editEmployeeDto.salary
-    user.firstName = editEmployeeDto.firstName
-    user.givenName = editEmployeeDto.givenName
+    user.password = hashedPassword;
+    user.salary = editEmployeeDto.salary;
+    user.firstName = editEmployeeDto.firstName;
+    user.givenName = editEmployeeDto.givenName;
     return user.save();
   }
+
 }
