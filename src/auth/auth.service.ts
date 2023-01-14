@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { sign } from 'jsonwebtoken';
 import { User } from 'src/user/user.entity';
-import { SignInDto, SignUpDto, TokenResponse } from './dto/auth.dto';
+import { SignInDto, TokenResponse } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from 'src/user-role/user-role.entity';
 import { Role } from 'src/role/role.entity';

@@ -4,7 +4,6 @@ import { JWTAuthGuard } from 'src/auth/jwt.guard';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RoleDto } from './dto/role.dto';
-import { Role } from './role.entity';
 import { RoleService } from './role.service';
 
 @ApiExcludeController(true)

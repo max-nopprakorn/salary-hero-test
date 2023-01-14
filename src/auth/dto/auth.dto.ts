@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 import { User } from 'src/user/user.entity';
 
 export class SignInDto {
@@ -11,24 +11,7 @@ export class SignInDto {
   password: string;
 }
 
-export class SignUpDto {
-
-  @IsString()
-  @IsNotEmpty()
-  username: string;
-
-  @IsString()
-  @IsNotEmpty()
-  password: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  companyId: number
-
-}
-
 export interface TokenResponse {
-
-  user: User
-  token: string
+  user: User;
+  token: string;
 }
