@@ -173,4 +173,30 @@ export class EmployeeService {
     user.givenName = editEmployeeDto.givenName;
     return await user.save();
   }
+
+  async upsertEmployees(upsertEmployeeDto: AddEmployeeDto[]): Promise<User[]> {
+    const res = [];
+    const role = await this.roleModel.findOne({
+      where: {
+        name: 'EMPLOYEE',
+      },
+    });
+    for (const employee of upsertEmployeeDto) {
+      const salt = await bcrypt.genSalt(saltRound);
+      const hashedPassword = bcrypt.hashSync(employee.password, salt);
+      const param = { ...employee, password: hashedPassword };
+      const [user, created] = await this.userModel.upsert(param);
+      if (user) {
+        res.push(user);
+
+        const userRoleParam = {
+          userId: user.id,
+          roleId: role.id,
+        };
+
+        await this.userRoleModel.create(userRoleParam);
+      }
+    }
+    return res;
+  }
 }

@@ -15,7 +15,11 @@ import { JWTAuthGuard } from 'src/auth/jwt.guard';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { AuthUser } from 'src/auth/user.decorator';
-import { AddEmployeeDto, EditEmployeeDto, RequestMoneyTransferDto } from './dto/employee.dto';
+import {
+  AddEmployeeDto,
+  EditEmployeeDto,
+  RequestMoneyTransferDto,
+} from './dto/employee.dto';
 import { EmployeeService } from './employee.service';
 
 @Controller('employees')
@@ -53,48 +57,59 @@ export class EmployeeController {
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
-  async findAllEmployeeInCompany(@AuthUser() user:any) {
-    return this.employeeService.getAllEmployeesByCompanyId(user.companyId)
+  async findAllEmployeeInCompany(@AuthUser() user: any) {
+    return this.employeeService.getAllEmployeesByCompanyId(user.companyId);
   }
 
   @Get('addedInCompany')
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
-  async findAddedEmployeeInCompany(@AuthUser() user:any) {
-    return this.employeeService.getAddedEmployeesByCompanyId(user.companyId)
+  async findAddedEmployeeInCompany(@AuthUser() user: any) {
+    return this.employeeService.getAddedEmployeesByCompanyId(user.companyId);
   }
 
   @Get('notAddedInCompany')
   @ApiBearerAuth()
-  @UseGuards(JWTAuthGuard,RoleGuard)
+  @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
-  async findNotAddedEmployeeInCompany(@AuthUser() user:any) {
-    return this.employeeService.getNotAddedEmployeesByCompanyId(user.companyId)
+  async findNotAddedEmployeeInCompany(@AuthUser() user: any) {
+    return this.employeeService.getNotAddedEmployeesByCompanyId(user.companyId);
   }
 
   @Post()
   @ApiBearerAuth()
-  @UseGuards(JWTAuthGuard,RoleGuard)
+  @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
-  async addEmployeeToCompany(@AuthUser() user:any, @Body() addEmployeeDto: AddEmployeeDto) {
-    return this.employeeService.addEmployeeToCompany(addEmployeeDto, user.companyId)
+  async addEmployeeToCompany(
+    @AuthUser() user: any,
+    @Body() addEmployeeDto: AddEmployeeDto,
+  ) {
+    return this.employeeService.addEmployeeToCompany(
+      addEmployeeDto,
+      user.companyId,
+    );
   }
 
   @Patch(':id')
   @ApiBearerAuth()
-  @UseGuards(JWTAuthGuard,RoleGuard)
+  @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
-  async editEmployee(@Param('id') employeeId: number, @Body() editEmployee: EditEmployeeDto) {
-    return this.employeeService.editEmployee(employeeId, editEmployee)
+  async editEmployee(
+    @Param('id') employeeId: number,
+    @Body() editEmployee: EditEmployeeDto,
+  ) {
+    return this.employeeService.editEmployee(employeeId, editEmployee);
   }
 
   @Delete(':id')
   @ApiBearerAuth()
-  @UseGuards(JWTAuthGuard,RoleGuard)
+  @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
   async deleteEmployee(@Param('id') employeeId: number) {
-    const result = await this.employeeService.removeEmployeeFromCompany(employeeId)
+    const result = await this.employeeService.removeEmployeeFromCompany(
+      employeeId,
+    );
     if (result) {
       return {
         status: 'success',
@@ -106,5 +121,13 @@ export class EmployeeController {
         message: `Can't delete employee with id ${employeeId}`,
       };
     }
+  }
+
+  @Post('upsert')
+  @ApiBearerAuth()
+  @UseGuards(JWTAuthGuard, RoleGuard)
+  @Roles('CLIENT_ADMIN')
+  async upsert(@Body() upsertDto: AddEmployeeDto[]) {
+    return await this.employeeService.upsertEmployees(upsertDto);
   }
 }
