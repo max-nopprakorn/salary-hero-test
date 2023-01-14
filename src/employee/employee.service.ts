@@ -149,6 +149,11 @@ export class EmployeeService {
       },
     });
     if (countDelete > 0) {
+      await this.userRoleModel.destroy({
+        where: {
+          userId: employeeId,
+        },
+      });
       return true;
     } else {
       return false;
@@ -168,5 +173,4 @@ export class EmployeeService {
     user.givenName = editEmployeeDto.givenName;
     return await user.save();
   }
-
 }

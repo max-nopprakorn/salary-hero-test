@@ -52,7 +52,7 @@ export class ClientAdminService {
     return filteredUsers;
   }
 
-  async findByCompany(companyId: number): Promise<User[]> {
+  async findAllByCompanyId(companyId: number): Promise<User[]> {
     const users = await this.userModel.findAll({
       where: {
         companyId: companyId,
@@ -68,12 +68,12 @@ export class ClientAdminService {
     return filteredUsers;
   }
 
-  async findOne(id: number) {
-    return this.userModel.findByPk(id);
+  async findOne(clientAdminId: number) {
+    return this.userModel.findByPk(clientAdminId);
   }
 
-  async update(id: number, updateClientAdminDto: UpdateCLientAdminDto) {
-    const clientAdmin = await this.userModel.findByPk(id);
+  async update(clientAdminId: number, updateClientAdminDto: UpdateCLientAdminDto) {
+    const clientAdmin = await this.userModel.findByPk(clientAdminId);
     const salt = await bcrypt.genSalt(saltRound);
     const hashedPassword = bcrypt.hashSync(updateClientAdminDto.password, salt);
     clientAdmin.password = hashedPassword;
@@ -83,17 +83,17 @@ export class ClientAdminService {
     return await clientAdmin.save();
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(clientAdminId: number): Promise<boolean> {
     const countDelete = await this.userModel.destroy({
       where: {
-        id: id,
+        id: clientAdminId,
       },
     });
 
     if (countDelete > 0) {
       await this.userRoleModel.destroy({
         where: {
-          userId: id,
+          userId: clientAdminId,
         },
       });
       return true;
