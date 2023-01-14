@@ -1,14 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 import { RoleService } from './role.service';
 
+@ApiExcludeController(true)
 @Controller('roles')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
-
-  @Post()
-  create(@Body() createRoleDto) {
-    return this.roleService.create(createRoleDto);
-  }
 
   @Get()
   findAll() {

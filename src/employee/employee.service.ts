@@ -89,24 +89,6 @@ export class EmployeeService {
     });
   }
 
-  async getAddedEmployeesByCompanyId(companyId: number): Promise<User[]> {
-    return this.userModel.findAll({
-      where: {
-        companyId: companyId,
-        isAdded: true,
-      },
-    });
-  }
-
-  async getNotAddedEmployeesByCompanyId(companyId: number): Promise<User[]> {
-    return this.userModel.findAll({
-      where: {
-        companyId: companyId,
-        isAdded: false,
-      },
-    });
-  }
-
   async addEmployeeToCompany(
     addEmployeeDto: AddEmployeeDto,
     companyId: number,

@@ -15,10 +15,12 @@ import { JWTAuthGuard } from 'src/auth/jwt.guard';
 import { RoleGuard } from 'src/auth/role.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { AuthUser } from 'src/auth/user.decorator';
+import { User } from 'src/user/user.entity';
 import {
   AddEmployeeDto,
   EditEmployeeDto,
   RequestMoneyTransferDto,
+  UpsertEmployeeDto,
 } from './dto/employee.dto';
 import { EmployeeService } from './employee.service';
 
@@ -59,22 +61,6 @@ export class EmployeeController {
   @Roles('CLIENT_ADMIN')
   async findAllEmployeeInCompany(@AuthUser() user: any) {
     return this.employeeService.getAllEmployeesByCompanyId(user.companyId);
-  }
-
-  @Get('addedInCompany')
-  @ApiBearerAuth()
-  @UseGuards(JWTAuthGuard, RoleGuard)
-  @Roles('CLIENT_ADMIN')
-  async findAddedEmployeeInCompany(@AuthUser() user: any) {
-    return this.employeeService.getAddedEmployeesByCompanyId(user.companyId);
-  }
-
-  @Get('notAddedInCompany')
-  @ApiBearerAuth()
-  @UseGuards(JWTAuthGuard, RoleGuard)
-  @Roles('CLIENT_ADMIN')
-  async findNotAddedEmployeeInCompany(@AuthUser() user: any) {
-    return this.employeeService.getNotAddedEmployeesByCompanyId(user.companyId);
   }
 
   @Post()
@@ -127,7 +113,7 @@ export class EmployeeController {
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
-  async upsert(@Body() upsertDto: AddEmployeeDto[]) {
-    return await this.employeeService.upsertEmployees(upsertDto);
+  async upsert(@Body() upsertEmployeeDto: UpsertEmployeeDto[]):Promise<User[]> {
+    return await this.employeeService.upsertEmployees(upsertEmployeeDto);
   }
 }
