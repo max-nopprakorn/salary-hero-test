@@ -59,11 +59,11 @@ default user credetial
 | `/clientAdmins/{id}`                           | PATCH       | HERO         | Update a client admin                                                                                            |
 | `/clientAdmins/{id}`                           | DELETE      | HERO         | Delete a client admin                                                                                            |
 
-Notes: every delete api is hard delete, so every relation will be also deleted.
+Notes: every delete API is hard-delete, so every relation will be also deleted.
 
 ## Hidden API List
 
-There are some hidden apis which only `HERO` role can access and not presented in SwaggerUI
+There are some hidden APIs which only `HERO` role can access and not presented in SwaggerUI
 
 | API           | HTTP Method | Description                                                                                      |
 | ------------- | ----------- | ------------------------------------------------------------------------------------------------ |
