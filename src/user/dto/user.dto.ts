@@ -18,3 +18,15 @@ export class CreateUserDto {
     @IsNotEmpty()
     companyId: number
 }
+
+export interface ResponseUser {
+    username: string
+
+    firstName: string
+
+    givenName: string
+
+    salary: number
+
+    companyId: number
+}

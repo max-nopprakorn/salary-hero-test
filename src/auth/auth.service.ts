@@ -7,7 +7,6 @@ import * as bcrypt from 'bcrypt';
 import { UserRole } from 'src/user-role/user-role.entity';
 import { Role } from 'src/role/role.entity';
 
-const saltRound = 10;
 const jwtSecret = 'salary-hero';
 
 @Injectable()
@@ -52,10 +51,10 @@ export class AuthService {
 
       roles.push(role.name);
     }
-
+    const userWithOutPassword = await this.userModel.findByPk(user.id, {
+      attributes: { exclude: [`password`] },
+    }); 
     const token = sign({ ...user, roles: roles }, jwtSecret);
-
-    return { token, user };
+    return { token: token, user: userWithOutPassword };
   }
-
 }

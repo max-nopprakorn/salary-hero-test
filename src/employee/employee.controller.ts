@@ -43,12 +43,12 @@ export class EmployeeController {
       requestMoneyTransferDto.amount,
     );
     if (response) {
-      return res.status(HttpStatus.OK).json({
+      return await res.status(HttpStatus.OK).json({
         status: 'success',
         message: `User with id ${user.userId} has successfully tranfered money from Salary Hero.`,
       });
     } else {
-      return res.status(HttpStatus.OK).json({
+      return await res.status(HttpStatus.OK).json({
         status: 'failed',
         message: `User with id ${user.userId} has been already tranferred money more than 50% of his salary for this month.`,
       });
@@ -60,15 +60,17 @@ export class EmployeeController {
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
   async findAllEmployeeInCompany(@AuthUser() user: any) {
-    return this.employeeService.getAllEmployeesByCompanyId(user.companyId);
+    return await this.employeeService.getAllEmployeesByCompanyId(
+      user.companyId,
+    );
   }
 
   @Get(':id')
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
-  async findOne(@Param('id') id: number) {
-    return this.employeeService.findOne(+id)
+  async findOne(@Param('id') id: number, @AuthUser() user: any) {
+    return await this.employeeService.findOne(+id, user.companyId);
   }
 
   @Post()
@@ -79,7 +81,7 @@ export class EmployeeController {
     @AuthUser() user: any,
     @Body() addEmployeeDto: AddEmployeeDto,
   ) {
-    return this.employeeService.addEmployeeToCompany(
+    return await this.employeeService.addEmployeeToCompany(
       addEmployeeDto,
       user.companyId,
     );
@@ -92,17 +94,23 @@ export class EmployeeController {
   async editEmployee(
     @Param('id') employeeId: number,
     @Body() editEmployee: EditEmployeeDto,
+    @AuthUser() user: any,
   ) {
-    return this.employeeService.editEmployee(employeeId, editEmployee);
+    return this.employeeService.editEmployee(
+      employeeId,
+      editEmployee,
+      user.companyId,
+    );
   }
 
   @Delete(':id')
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
-  async deleteEmployee(@Param('id') employeeId: number) {
+  async deleteEmployee(@Param('id') employeeId: number, @AuthUser() user: any) {
     const result = await this.employeeService.removeEmployeeFromCompany(
       employeeId,
+      user.companyId,
     );
     if (result) {
       return {
@@ -121,8 +129,13 @@ export class EmployeeController {
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('CLIENT_ADMIN')
-  async upsert(@Body() upsertEmployeeDto: UpsertEmployeeDto[]):Promise<User[]> {
-    return await this.employeeService.upsertEmployees(upsertEmployeeDto);
+  async upsert(
+    @Body() upsertEmployeeDto: UpsertEmployeeDto[],
+    @AuthUser() user: any,
+  ): Promise<User[]> {
+    return await this.employeeService.upsertEmployees(
+      upsertEmployeeDto,
+      user.companyId,
+    );
   }
-  
 }

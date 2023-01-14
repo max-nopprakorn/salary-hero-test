@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Role } from 'src/role/role.entity';
 import { UserRole } from 'src/user-role/user-role.entity';
 import { User } from 'src/user/user.entity';
 import { ClientAdminDto, UpdateCLientAdminDto } from './dto/client-admin.dto';
 import * as bcrypt from 'bcrypt';
+import { ResponseUser } from 'src/user/dto/user.dto';
 
-const clientAdminRole = 'CLIENT_ADMIN';
+const clientAdminRoleValue = 'CLIENT_ADMIN';
+
+const employeeRoleValue = 'EMPLOYEE';
 
 const saltRound = 10;
 
@@ -20,85 +23,163 @@ export class ClientAdminService {
     @InjectModel(Role)
     private roleModel: typeof Role,
   ) {}
-  async create(createClientAdminDto: ClientAdminDto): Promise<User> {
-    const user = await this.userModel.create({ ...createClientAdminDto });
+  async create(createClientAdminDto: ClientAdminDto): Promise<ResponseUser> {
+    try {
+      const duplicate = await this.checkDuplicate(createClientAdminDto.username)
+      if(duplicate) throw new ConflictException(`Duplicate username: ${createClientAdminDto.username}`)
+      const salt = await bcrypt.genSalt(saltRound);
+      const hashedPassword = bcrypt.hashSync(
+        createClientAdminDto.password,
+        salt,
+      );
+      const param = { ...createClientAdminDto, password: hashedPassword };
+      const user = await this.userModel.create(param);
 
-    const role = await this.roleModel.findOne({
+      const clientAdminRole = await this.roleModel.findOne({
+        where: {
+          name: clientAdminRoleValue,
+        },
+      });
+
+      const clientRoleParam = {
+        userId: user.id,
+        roleId: clientAdminRole.id,
+      };
+
+      const employeeRole = await this.roleModel.findOne({
+        where: {
+          name: employeeRoleValue,
+        },
+      });
+
+      const employeeRoleParam = {
+        userId: user.id,
+        roleId: employeeRole.id,
+      };
+
+      const userRoleParam = [clientRoleParam, employeeRoleParam];
+      await this.userRoleModel.bulkCreate(userRoleParam);
+      return this.userModel.findByPk(user.id, {
+        attributes: { exclude: ['password'] },
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async checkDuplicate(username: string) {
+    const user = await this.userModel.findOne({
       where: {
-        name: clientAdminRole,
-      },
-    });
+        username: username
+      }
+    })
 
-    const userRoleParam = {
-      userId: user.id,
-      roleId: role.id,
-    };
-
-    await this.userRoleModel.create(userRoleParam);
-    return user;
+    return user ? true:false
   }
 
   async findAll(): Promise<User[]> {
-    const allUsers = await this.userModel.findAll({
-      include: [
-        {
-          model: Role,
-        },
-      ],
-    });
-    const filteredUsers = allUsers.filter((user) =>
-      user.roles.some((role) => role.name === clientAdminRole),
-    );
-    return filteredUsers;
+    try {
+      const allUsers = await this.userModel.findAll({
+        include: [
+          {
+            model: Role,
+          },
+        ],
+        attributes: { exclude: ['password'] },
+      });
+      const filteredUsers = allUsers.filter((user) =>
+        user.roles.some((role) => role.name === clientAdminRoleValue),
+      );
+      return filteredUsers;
+    } catch (e) {
+      throw e;
+    }
   }
 
   async findAllByCompanyId(companyId: number): Promise<User[]> {
-    const users = await this.userModel.findAll({
-      where: {
-        companyId: companyId,
-      },
-      include: {
-        model: Role,
-      },
-    });
+    try {
+      const users = await this.userModel.findAll({
+        where: {
+          companyId: companyId,
+        },
+        include: {
+          model: Role,
+        },
+        attributes: { exclude: ['password'] },
+      });
 
-    const filteredUsers = users.filter((user) =>
-      user.roles.some((role) => role.name === clientAdminRole),
-    );
-    return filteredUsers;
+      const filteredUsers = users.filter((user) =>
+        user.roles.some((role) => role.name === clientAdminRoleValue),
+      );
+      return filteredUsers;
+    } catch (e) {
+      throw e;
+    }
   }
 
   async findOne(clientAdminId: number) {
-    return this.userModel.findByPk(clientAdminId);
+    try {
+      await this.checkIfExist(clientAdminId);
+      return this.userModel.findByPk(clientAdminId, {
+        attributes: { exclude: ['password'] },
+      });
+    } catch (e) {
+      throw e;
+    }
   }
 
-  async update(clientAdminId: number, updateClientAdminDto: UpdateCLientAdminDto) {
-    const clientAdmin = await this.userModel.findByPk(clientAdminId);
-    const salt = await bcrypt.genSalt(saltRound);
-    const hashedPassword = bcrypt.hashSync(updateClientAdminDto.password, salt);
-    clientAdmin.password = hashedPassword;
-    clientAdmin.salary = updateClientAdminDto.salary;
-    clientAdmin.firstName = updateClientAdminDto.firstName;
-    clientAdmin.givenName = updateClientAdminDto.givenName;
-    return await clientAdmin.save();
+  async update(
+    clientAdminId: number,
+    updateClientAdminDto: UpdateCLientAdminDto,
+  ): Promise<User> {
+    try {
+      await this.checkIfExist(clientAdminId);
+      const clientAdmin = await this.userModel.findByPk(clientAdminId);
+      const salt = await bcrypt.genSalt(saltRound);
+      const hashedPassword = bcrypt.hashSync(
+        updateClientAdminDto.password,
+        salt,
+      );
+      clientAdmin.password = hashedPassword;
+      clientAdmin.salary = updateClientAdminDto.salary;
+      clientAdmin.firstName = updateClientAdminDto.firstName;
+      clientAdmin.givenName = updateClientAdminDto.givenName;
+      await clientAdmin.save();
+      return this.userModel.findByPk(clientAdmin.id, {
+        attributes: { exclude: ['password'] },
+      });
+    } catch (e) {
+      throw e;
+    }
   }
 
   async remove(clientAdminId: number): Promise<boolean> {
-    const countDelete = await this.userModel.destroy({
-      where: {
-        id: clientAdminId,
-      },
-    });
-
-    if (countDelete > 0) {
-      await this.userRoleModel.destroy({
+    try {
+      await this.checkIfExist(clientAdminId);
+      const countDelete = await this.userModel.destroy({
         where: {
-          userId: clientAdminId,
+          id: clientAdminId,
         },
       });
-      return true;
-    } else {
-      return false;
+
+      if (countDelete > 0) {
+        await this.userRoleModel.destroy({
+          where: {
+            userId: clientAdminId,
+          },
+        });
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      throw e;
     }
+  }
+
+  async checkIfExist(id: number) {
+    const check = await this.userModel.findByPk(id);
+    if (!check)
+      throw new NotFoundException(`Could not find company wiht id ${id}`);
   }
 }

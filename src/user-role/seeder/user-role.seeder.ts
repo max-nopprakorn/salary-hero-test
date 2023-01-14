@@ -18,5 +18,4 @@ export class SeedUserRole implements OnSeederInit<UserRole> {
 
     return data;
   }
-
 }

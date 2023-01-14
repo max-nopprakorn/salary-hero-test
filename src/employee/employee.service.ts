@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { EmployeeRequestTransaction } from 'src/employee-request-transaction/employee-request-transaction.entity';
@@ -23,53 +23,57 @@ export class EmployeeService {
     private userRoleModel: typeof UserRole,
   ) {}
 
-  async requestMoney(userId: number, amount: number): Promise<Object> {
-    const date = new Date();
-    const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
-    const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    const transactions = await this.employeeRequestTransactionModel.findAll({
-      where: {
-        userId: userId,
-        createdAt: {
-          [Op.between]: [startDate, endDate],
+  async requestMoney(employeeId: number, amount: number): Promise<Object> {
+    try {
+      await this.checkIfExist(employeeId);
+      const date = new Date();
+      const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+      const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      const transactions = await this.employeeRequestTransactionModel.findAll({
+        where: {
+          employeeId: employeeId,
+          createdAt: {
+            [Op.between]: [startDate, endDate],
+          },
         },
-      },
-    });
+      });
 
-    const sumAmount = transactions.reduce(
-      (sum, transaction) => sum + transaction.amount,
-      0,
-    );
+      const sumAmount = transactions.reduce(
+        (sum, transaction) => sum + transaction.amount,
+        0,
+      );
 
-    const user = await this.userModel.findOne({
-      where: {
-        id: userId,
-        isAdded: true,
-      },
-    });
+      const user = await this.userModel.findOne({
+        where: {
+          id: employeeId,
+        },
+      });
 
-    if (!user) {
-      return {
-        status: 'failed',
-        message: `User with id ${userId} has't been added to the company yet.`,
-      };
-    }
+      if (!user) {
+        return {
+          status: 'failed',
+          message: `User with id ${employeeId} has't been added to the company yet.`,
+        };
+      }
 
-    if (this.checkIfCanRequest(sumAmount, user.salary, amount)) {
-      const transactionParam = {
-        userId: userId,
-        amount: amount,
-      };
-      await this.employeeRequestTransactionModel.create(transactionParam);
-      return {
-        status: 'success',
-        message: `User with id ${userId} has successfully tranfered money from Salary Hero.`,
-      };
-    } else {
-      return {
-        status: 'failed',
-        message: `User with id ${userId} has already tranferred money more than 50% of his salary for this month.`,
-      };
+      if (this.checkIfCanRequest(sumAmount, user.salary, amount)) {
+        const transactionParam = {
+          employeeId: employeeId,
+          amount: amount,
+        };
+        await this.employeeRequestTransactionModel.create(transactionParam);
+        return {
+          status: 'success',
+          message: `User with id ${employeeId} has successfully transferred money from Salary Hero.`,
+        };
+      } else {
+        return {
+          status: 'failed',
+          message: `User with id ${employeeId} has already transferred money more than 50% of his salary for this month.`,
+        };
+      }
+    } catch (e) {
+      throw e;
     }
   }
 
@@ -82,15 +86,29 @@ export class EmployeeService {
   }
 
   async getAllEmployeesByCompanyId(companyId: number): Promise<User[]> {
-    return this.userModel.findAll({
-      where: {
-        companyId: companyId,
-      },
-    });
+    try {
+      return this.userModel.findAll({
+        where: {
+          companyId: companyId,
+        },
+        attributes: { exclude: ['password'] },
+      });
+    } catch (e) {
+      throw e;
+    }
   }
 
-  async findOne(id: number): Promise<User> {
-    return this.userModel.findByPk(id)
+  async findOne(employeeId: number, adminCompanyId: number): Promise<User> {
+    try {
+      await this.checkIfExist(employeeId);
+      const user = await this.userModel.findByPk(employeeId, {
+        attributes: { exclude: ['password'] },
+      });
+      if(user.companyId !== adminCompanyId) throw new ForbiddenException(`You have no right to access employee from other companies.`)
+      return user
+    } catch (e) {
+      throw e;
+    }
   }
 
   async addEmployeeToCompany(
@@ -98,6 +116,7 @@ export class EmployeeService {
     companyId: number,
   ): Promise<User> {
     try {
+      if(addEmployeeDto.companyId !== companyId) throw new ForbiddenException(`You have no right to access employee from other companies.`)
       const salt = await bcrypt.genSalt(saltRound);
       const hashedPassword = bcrypt.hashSync(addEmployeeDto.password, salt);
       const role = await this.roleModel.findOne({
@@ -122,67 +141,102 @@ export class EmployeeService {
       };
 
       await this.userRoleModel.create(userRoleParam);
-      return user;
+      return this.findOne(user.id,companyId);
     } catch (e) {
-      console.log('e :>> ', e);
+      throw e
     }
   }
 
-  async removeEmployeeFromCompany(employeeId: number): Promise<boolean> {
-    const countDelete = await this.userModel.destroy({
-      where: {
-        id: employeeId,
-      },
-    });
-    if (countDelete > 0) {
-      await this.userRoleModel.destroy({
+  async removeEmployeeFromCompany(employeeId: number, adminCompanyId: number): Promise<boolean> {
+    try {
+      await this.checkIfExist(employeeId);
+      const user = await this.userModel.findByPk(employeeId)
+      if(user.companyId !== adminCompanyId) throw new ForbiddenException(`You have no right to access employee from other companies.`)
+      const countDelete = await this.userModel.destroy({
         where: {
-          userId: employeeId,
+          id: employeeId,
         },
       });
-      return true;
-    } else {
-      return false;
+      if (countDelete > 0) {
+        await this.userRoleModel.destroy({
+          where: {
+            userId: employeeId,
+          },
+        });
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      throw e;
     }
   }
 
   async editEmployee(
     employeeId: number,
     editEmployeeDto: EditEmployeeDto,
+    adminCompanyId: number
   ): Promise<User> {
-    const user = await this.userModel.findByPk(employeeId);
-    const salt = await bcrypt.genSalt(saltRound);
-    const hashedPassword = bcrypt.hashSync(editEmployeeDto.password, salt);
-    user.password = hashedPassword;
-    user.salary = editEmployeeDto.salary;
-    user.firstName = editEmployeeDto.firstName;
-    user.givenName = editEmployeeDto.givenName;
-    return await user.save();
+    try {
+      await this.checkIfExist(employeeId);
+      const user = await this.userModel.findByPk(employeeId);
+      const salt = await bcrypt.genSalt(saltRound);
+      const hashedPassword = bcrypt.hashSync(editEmployeeDto.password, salt);
+      user.password = hashedPassword;
+      user.salary = editEmployeeDto.salary;
+      user.firstName = editEmployeeDto.firstName;
+      user.givenName = editEmployeeDto.givenName;
+      return this.findOne(user.id,adminCompanyId);
+    } catch (e) {
+      throw e;
+    }
   }
 
-  async upsertEmployees(upsertEmployeeDto: AddEmployeeDto[]): Promise<User[]> {
-    const res = [];
-    const role = await this.roleModel.findOne({
-      where: {
-        name: 'EMPLOYEE',
-      },
-    });
-    for (const employee of upsertEmployeeDto) {
-      const salt = await bcrypt.genSalt(saltRound);
-      const hashedPassword = bcrypt.hashSync(employee.password, salt);
-      const param = { ...employee, password: hashedPassword };
-      const [user, created] = await this.userModel.upsert(param);
-      if (user) {
-        res.push(user);
+  async upsertEmployees(upsertEmployeeDto: AddEmployeeDto[], adminCompanyId: number): Promise<User[]> {
+    try {
+      const res = [];
+      const role = await this.roleModel.findOne({
+        where: {
+          name: 'EMPLOYEE',
+        },
+      });
+      for (const employee of upsertEmployeeDto) {
+        const salt = await bcrypt.genSalt(saltRound);
+        const hashedPassword = bcrypt.hashSync(employee.password, salt);
+        const param = { ...employee, password: hashedPassword };
+        const [user, created] = await this.userModel.upsert(param);
+        console.log('created :>> ', created);
+        if (user) {
+          const userWithoutPassword = await this.findOne(user.id,adminCompanyId);
+          res.push(userWithoutPassword);
 
-        const userRoleParam = {
-          userId: user.id,
-          roleId: role.id,
-        };
+          const userRole = await this.userRoleModel.findOne({
+            where: {
+              userId: user.id,
+              roleId: role.id,
+            },
+          });
 
-        await this.userRoleModel.create(userRoleParam);
+          if (!userRole) {
+            const userRoleParam = {
+              userId: user.id,
+              roleId: role.id,
+            };
+
+            await this.userRoleModel.create(userRoleParam);
+          }
+        }
       }
+      return res;
+    } catch (e) {
+      console.log('e :>> ', e);
+      throw e;
     }
-    return res;
+  }
+
+  async checkIfExist(id: number) {
+    const check = await this.userModel.findByPk(id);
+    if (!check)
+      throw new NotFoundException(`Could not find company wiht id ${id}`);
   }
 }

@@ -9,10 +9,10 @@ export class EmployeeRequestTransactionService {
     private transactionModel: typeof EmployeeRequestTransaction,
   ) {}
 
-  async getAllHistory(userId: number): Promise<EmployeeRequestTransaction[]> {
+  async getAllHistory(employeeId: number): Promise<EmployeeRequestTransaction[]> {
     return this.transactionModel.findAll({
       where: {
-        userId: userId,
+        employeeId: employeeId,
       },
     });
   }

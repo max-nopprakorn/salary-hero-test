@@ -6,7 +6,7 @@ export class EmployeeRequestTransaction extends Model {
 
     @ForeignKey(() => User)
     @Column
-    userId: number
+    employeeId: number
 
     @Column
     amount: number

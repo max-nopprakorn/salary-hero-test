@@ -13,7 +13,7 @@ export class EmployeeRequestTransactionController {
     private readonly transactionService: EmployeeRequestTransactionService,
   ) {}
 
-  @Get('history/:id')
+  @Get('history')
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard,RoleGuard)
   @Roles('EMPLOYEE')
