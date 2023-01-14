@@ -16,9 +16,10 @@ import { UserRole } from './user-role/user-role.entity';
 import { Company } from './company/company.entity';
 import { SeederModule } from 'nestjs-sequelize-seeder';
 // import { EmployeeRequestTransactionModule } from './employee-request-transactionadasd/employee-request-transaction.module';
-import { EmployeeRequestTransaction } from './employee-request-transactionadasd/employee-request-transaction.entity';
 import { EmployeeModule } from './employee/employee.module';
 import { EmployeeRequestTransactionModule } from './employee-request-transaction/employee-request-transaction.module';
+import { EmployeeRequestTransaction } from './employee-request-transaction/employee-request-transaction.entity';
+import { ClientAdminModule } from './client-admin/client-admin.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { EmployeeRequestTransactionModule } from './employee-request-transaction
     PassportModule,
     EmployeeModule,
     EmployeeRequestTransactionModule,
+    ClientAdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

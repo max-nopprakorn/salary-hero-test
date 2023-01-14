@@ -166,7 +166,7 @@ export class EmployeeService {
     user.salary = editEmployeeDto.salary;
     user.firstName = editEmployeeDto.firstName;
     user.givenName = editEmployeeDto.givenName;
-    return user.save();
+    return await user.save();
   }
 
 }
