@@ -10,6 +10,9 @@ export class UserService implements OnModuleInit {
     private userModel: typeof User,
   ) {}
 
+  // I have to use this way to seed salary-hero account because if I use SeederModule it will not increase the index
+  // of an ID so it will be stuck at 1 then when USER is gonna be created next time it will cause an error because 
+  // id 1 is already existed.
   onModuleInit() {
     const salt = 10;
     const password = hashSync('P@ssw0rd', salt);
