@@ -58,33 +58,4 @@ export class AuthService {
     return { token, user };
   }
 
-  async signUp(signUpDto: SignUpDto): Promise<User> {
-    try {
-      const salt = await bcrypt.genSalt(saltRound);
-      const hashedPassword = bcrypt.hashSync(signUpDto.password, salt);
-      const role = await this.roleModel.findOne({
-        where: {
-          name: 'EMPLOYEE',
-        },
-      });
-      const userParam = {
-        username: signUpDto.username,
-        password: hashedPassword, 
-        companyId: signUpDto.companyId,
-        isAdded: false,
-      };
-
-      const user = await this.userModel.create(userParam);
-
-      const userRoleParam = {
-        userId: user.id,
-        roleId: role.id,
-      };
-
-      await this.userRoleModel.create(userRoleParam);
-      return user;
-    } catch (e) {
-      console.log('e :>> ', e);
-    }
-  }
 }

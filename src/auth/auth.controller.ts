@@ -21,24 +21,4 @@ export class AuthController {
       return res.status(e.status).json(e.response);
     }
   }
-
-  @Post('signUp')
-  async signUp(@Response() res, @Body() signUpDto: SignUpDto) {
-    try {
-      const response = await this.authService.signUp(signUpDto);
-      return res.status(HttpStatus.CREATED).json({ response });
-    } catch (e) {
-      return res.status(e.status).json(e.response);
-    }
-  }
-
-
-
-  @ApiBearerAuth()
-  @Roles('SALARY_HERO')
-  @UseGuards(JWTAuthGuard, RoleGuard)
-  @Get()
-  get(@AuthUser() user: any) {
-    return {hello:"WORLD!"}
-  }
 }
