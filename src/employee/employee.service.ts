@@ -89,6 +89,10 @@ export class EmployeeService {
     });
   }
 
+  async findOne(id: number): Promise<User> {
+    return this.userModel.findByPk(id)
+  }
+
   async addEmployeeToCompany(
     addEmployeeDto: AddEmployeeDto,
     companyId: number,

@@ -63,6 +63,14 @@ export class EmployeeController {
     return this.employeeService.getAllEmployeesByCompanyId(user.companyId);
   }
 
+  @Get(':id')
+  @ApiBearerAuth()
+  @UseGuards(JWTAuthGuard, RoleGuard)
+  @Roles('CLIENT_ADMIN')
+  async findOne(@Param('id') id: number) {
+    return this.employeeService.findOne(+id)
+  }
+
   @Post()
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
@@ -116,4 +124,5 @@ export class EmployeeController {
   async upsert(@Body() upsertEmployeeDto: UpsertEmployeeDto[]):Promise<User[]> {
     return await this.employeeService.upsertEmployees(upsertEmployeeDto);
   }
+  
 }

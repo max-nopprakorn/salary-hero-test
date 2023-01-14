@@ -1,73 +1,64 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This repository is built by [Nest](https://github.com/nestjs/nest) framework.
+The purpose of this repository is for Salary Hero interview only.
 
-## Installation
+## Requirement
 
-```bash
-$ npm install
-```
+- Docker
+- Docker Compose
+- NodeJS
 
 ## Running the app
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
+Run this command at project root directory
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker-compose up -d --build
 ```
 
-## Support
+with this command Postgresql database will be created at [http://localhost:5432]() and app will be running at [http://localhost:3000](http://localhost:3000) also SwaggerUI will be running at [http://localhost:3000/docs](http://localhost:3000/docs).
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+After run the command, The application will automatically create default user which has HERO role.
 
-## Stay in touch
+default user credetial
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```
+{
+  "username": "salary-hero",
+  "password": "P@ssw0rd"
+}
+```
 
-## License
+## API List
 
-Nest is [MIT licensed](LICENSE).
+| API                                            | HTTP Method | Role         | Description                                                                                                      |
+| ---------------------------------------------- | ----------- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `/auth/signIn`                                 | POST        | anyone       | Sign in to the application                                                                                       |
+| `/companies`                                   | POST        | HERO         | Create a company                                                                                                 |
+| `/companies`                                   | GET         | HERO         | Find all companies                                                                                               |
+| `/companies/search`                            | GET         | HERO         | Search companies by name                                                                                         |
+| `/companies/{id}`                              | GET         | HERO         | Find a company by id                                                                                             |
+| `/companies/{id}`                              | PATCH       | HERO         | Update a company                                                                                                 |
+| `/companies/{id}`                              | DELETE      | HERO         | Delete a company                                                                                                 |
+| `/employees/requestMoneyTransfer`              | POST        | EMPLOYEE     | Employee request money transfer from application                                                                 |
+| `/employees/allInCompany`                      | GET         | CLIENT_ADMIN | Find all employees that has same company id as signed in client admin                                            |
+| `/employees`                                   | POST        | CLIENT_ADMIN | Add an employee to company                                                                                       |
+| `/employees/{id}`                              | GET         | CLIENT_ADMIN | Find an employee by id                                                                                           |
+| `/employees/{id}`                              | PATCH       | CLIENT_ADMIN | Update an employee                                                                                               |
+| `/employees/{id}`                              | DELETE      | CLIENT_ADMIN | Delete an employee                                                                                               |
+| `/employee/upsert/`                            | POST        | CLIENT_ADMIN | Create and/or Update (if already exists) multiple users (use same request body as create an employee but array ) |
+| `/employeeRequestTransactions/history/{id}`    | GET         | EMPLOYEE     | Employee request a money transfer transaction                                                                    |
+| `/clientAdmins`                                | POST        | HERO         | Create a client admin                                                                                            |
+| `/clientAdmins`                                | GET         | HERO         | Find all client admins                                                                                           |
+| `/clientAdmins/findAllByCompanyId/{companyId}` | GET         | HERO         | Find all client admins in company                                                                                |
+| `/clientAdmins/{id}`                           | GET         | HERO         | Find a client admin by id                                                                                        |
+| `/clientAdmins/{id}`                           | PATCH       | HERO         | Update a client admin                                                                                            |
+| `/clientAdmins/{id}`                           | DELETE      | HERO         | Delete a client admin                                                                                            |
+
+Notes: every delete api is hard delete, so every relation will be also deleted.
+
+## Contact
+
+email: nopprakorn.sarinsakul@gmail.com
+phone: +66880759306
