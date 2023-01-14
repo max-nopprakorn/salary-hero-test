@@ -23,7 +23,7 @@ export class CompanyService {
   }
 
   async update(id: number, companyDto: CompanyDto): Promise<Company> {
-    this.companyModel.update(companyDto, {
+    await this.companyModel.update(companyDto, {
       where: {
         id: id,
       },

@@ -1,5 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApiExcludeController } from '@nestjs/swagger';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiExcludeController } from '@nestjs/swagger';
+import { JWTAuthGuard } from 'src/auth/jwt.guard';
+import { RoleGuard } from 'src/auth/role.guard';
+import { Roles } from 'src/auth/roles.decorator';
 import { UserRoleService } from './user-role.service';
 
 @ApiExcludeController(true)
@@ -7,28 +10,11 @@ import { UserRoleService } from './user-role.service';
 export class UserRoleController {
   constructor(private readonly userRoleService: UserRoleService) {}
 
-  @Post()
-  create(@Body() createUserRoleDto) {
-    return this.userRoleService.create(createUserRoleDto);
-  }
-
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(JWTAuthGuard, RoleGuard)
+  @Roles('HERO')
   findAll() {
     return this.userRoleService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userRoleService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserRoleDto) {
-    return this.userRoleService.update(+id, updateUserRoleDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userRoleService.remove(+id);
   }
 }

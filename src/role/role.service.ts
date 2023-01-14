@@ -1,32 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { RoleDto } from './dto/role.dto';
 import { Role } from './role.entity';
 
 @Injectable()
 export class RoleService {
   constructor(
     @InjectModel(Role)
-    private roleModel: typeof Role
-  ) {
-    
-  }
-  create(createRoleDto) {
-    return 'This action adds a new role';
+    private roleModel: typeof Role,
+  ) {}
+  async create(createRoleDto: RoleDto): Promise<Role> {
+    return this.roleModel.create({...createRoleDto});
   }
 
-  findAll() {
-    return this.roleModel.findAll()
+  async findAll(): Promise<Role[]> {
+    return this.roleModel.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
+  async findOne(id: number): Promise<Role> {
+    return this.roleModel.findByPk(id);
   }
 
-  update(id: number, updateRoleDto) {
-    return `This action updates a #${id} role`;
+  async update(id: number, updateRoleDto: RoleDto): Promise<Role> {
+    await this.roleModel.update(updateRoleDto, {
+      where: {
+        id: id,
+      },
+    });
+    return this.findOne(id)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  async remove(id: number): Promise<boolean> {
+    const countDelete = await this.roleModel.destroy({
+      where: {
+        id: id,
+      },
+    });
+
+    if(countDelete > 0) {
+      return true
+    } else {
+      return false
+    }
   }
 }
