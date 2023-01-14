@@ -24,7 +24,7 @@ export class RoleController {
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('HERO')
-  findAll() {
+  async findAll() {
     return this.roleService.findAll();
   }
 
@@ -32,7 +32,7 @@ export class RoleController {
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('HERO')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.roleService.findOne(+id);
   }
 
@@ -40,7 +40,7 @@ export class RoleController {
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('HERO')
-  update(@Param('id') id: string, @Body() updateRoleDto) {
+  async update(@Param('id') id: string, @Body() updateRoleDto) {
     return this.roleService.update(+id, updateRoleDto);
   }
 

@@ -14,7 +14,7 @@ export class UserRoleController {
   @ApiBearerAuth()
   @UseGuards(JWTAuthGuard, RoleGuard)
   @Roles('HERO')
-  findAll() {
+  async findAll() {
     return this.userRoleService.findAll();
   }
 }

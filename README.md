@@ -1,6 +1,9 @@
 ## Description
 
-This repository is built by [Nest](https://github.com/nestjs/nest) framework.
+This repository is built with [Nest](https://github.com/nestjs/nest) framework.
+
+## Purpose
+
 The purpose of this repository is for Salary Hero interview only.
 
 ## Requirement
@@ -57,6 +60,23 @@ default user credetial
 | `/clientAdmins/{id}`                           | DELETE      | HERO         | Delete a client admin                                                                                            |
 
 Notes: every delete api is hard delete, so every relation will be also deleted.
+
+## Hidden API List
+
+There are some hidden apis which only `HERO` role can access and not presented in SwaggerUI
+
+| API           | HTTP Method | Description                                                                                      |
+| ------------- | ----------- | ------------------------------------------------------------------------------------------------ |
+| `/userRoles`  | GET         | Find all relation between user and role through userRole model that contains user id and role id |
+| `/roles`      | POST        | Create a role                                                                                    |
+| `/roles`      | GET         | Find all roles                                                                                   |
+| `/roles/{id}` | GET         | Find a role by id                                                                                |
+| `/role/{id}s` | PATCH       | Update a role                                                                                    |
+| `/roles/{id}` | DELETE      | Delete a role                                                                                    |
+
+## Role
+
+`HERO`, `CLIENT_ADMIN` and `EMPLOYEE`
 
 ## Contact
 
